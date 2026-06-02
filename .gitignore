@@ -1,2 +1,4 @@
 .DS_Store
 _headers
+node_modules
+dist
