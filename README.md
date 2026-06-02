@@ -1,5 +1,10 @@
 # Open Avatar
 
+[![CI/CD Pipeline](https://github.com/juninmd/nano-live2d/actions/workflows/ci.yml/badge.svg)](https://github.com/juninmd/nano-live2d/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/juninmd/nano-live2d/branch/main/graph/badge.svg)](https://codecov.io/gh/juninmd/nano-live2d)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 An AI-powered 2D digital human avatar with intelligent clothing replacement using Live2D and Google Gemini API.
 
 ## Try it yourself (2 steps live demo)
@@ -174,6 +179,52 @@ export GEMINI_API_KEY='your_api_key_here'
 - Ensure all runtime files are in the correct directories
 - Check browser console for errors
 - Verify file paths in `lib/local_main.js`
+
+## CI/CD Pipeline
+
+This project uses GitHub Actions for continuous integration and deployment.
+
+### Pipeline Stages
+
+| Stage | Description | Tools |
+|-------|-------------|-------|
+| **Lint** | Code quality checks | flake8, black, mypy, ESLint |
+| **Test** | Unit tests with coverage | pytest, pytest-cov |
+| **Build** | Package and asset management | Python build, asset manifest |
+| **Deploy** | Auto-deploy to GitHub Pages | peaceiris/actions-gh-pages |
+
+### Quality Gates
+
+- ✅ Linting: Zero errors on critical rules
+- ✅ Formatting: Black compatibility
+- ✅ Type checking: mypy passes
+- ✅ Test coverage: ≥80%
+- ✅ Security: bandit scan
+- ✅ Dependencies: safety audit
+
+### Deployment
+
+- **Staging**: Automatic on PR merge to `develop`
+- **Production**: Manual trigger via workflow dispatch with approval
+
+### Local Development
+
+```bash
+# Run tests
+pytest tests/ --cov=generate_texture --cov-report=term
+
+# Lint
+flake8 . --count
+black --check .
+
+# Type check
+mypy generate_texture.py --ignore-missing-imports
+
+# Security scan
+bandit -r . -x .git,tests,dist
+```
+
+For full contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Technical Details
 - **Model Format**: Live2D Cubism 3.0 (`.moc3`, `.model3.json`)

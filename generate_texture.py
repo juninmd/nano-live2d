@@ -16,6 +16,7 @@ import json
 # PIL is required for image processing
 try:
     from PIL import Image
+
     HAS_PIL = True
 except ImportError:
     print("❌ Pillow is not installed, it's a required dependency")
@@ -26,33 +27,39 @@ except ImportError:
 TEXTURE_PATH = Path("runtime/haru_greeter_t05.2048/texture_01.png")
 BACKUP_PATH = Path("runtime/haru_greeter_t05.2048/texture_01_backup.png")
 
+
 def backup_texture():
     """Backup original texture file"""
     if TEXTURE_PATH.exists():
         import shutil
+
         shutil.copy2(TEXTURE_PATH, BACKUP_PATH)
         print(f"✓ Original texture backed up to: {BACKUP_PATH}")
         return True
     return False
 
+
 def restore_texture():
     """Restore original texture file"""
     if BACKUP_PATH.exists():
         import shutil
+
         shutil.copy2(BACKUP_PATH, TEXTURE_PATH)
         print(f"✓ Original texture restored")
         return True
     return False
+
 
 def load_and_encode_image(image_path):
     """Load image and convert to base64 encoding"""
     try:
         with open(image_path, "rb") as f:
             image_data = f.read()
-        return base64.b64encode(image_data).decode('utf-8')
+        return base64.b64encode(image_data).decode("utf-8")
     except Exception as e:
         print(f"❌ Failed to read image: {e}")
         return None
+
 
 def understand_clothing_image(image_path, api_key):
     """
@@ -68,47 +75,43 @@ def understand_clothing_image(image_path, api_key):
         return None
 
     model_name = "gemini-2.0-flash-exp"
-    api_url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent"
+    api_url = (
+        f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent"
+    )
 
     payload = {
-        "contents": [{
-            "parts": [
-                {
-                    "text": (
-                        "Please describe the clothing in the image in detail, including:\n"
-                        "1. Clothing type (T-shirt, hoodie, jacket, etc.)\n"
-                        "2. Main colors and color scheme\n"
-                        "3. Patterns or logos (if any)\n"
-                        "4. Special design elements (pockets, zippers, hood, etc.)\n"
-                        "5. Overall style (casual, sporty, formal, etc.)\n\n"
-                        "The description should be concise and clear, suitable for generating 2D cartoon-style Live2D character texture maps."
-                    )
-                },
-                {
-                    "inline_data": {
-                        "mime_type": "image/jpeg",
-                        "data": image_b64
-                    }
-                }
-            ]
-        }]
+        "contents": [
+            {
+                "parts": [
+                    {
+                        "text": (
+                            "Please describe the clothing in the image in detail, including:\n"
+                            "1. Clothing type (T-shirt, hoodie, jacket, etc.)\n"
+                            "2. Main colors and color scheme\n"
+                            "3. Patterns or logos (if any)\n"
+                            "4. Special design elements (pockets, zippers, hood, etc.)\n"
+                            "5. Overall style (casual, sporty, formal, etc.)\n\n"
+                            "The description should be concise and clear, suitable for generating 2D cartoon-style Live2D character texture maps."
+                        )
+                    },
+                    {"inline_data": {"mime_type": "image/jpeg", "data": image_b64}},
+                ]
+            }
+        ]
     }
 
     try:
         print("🔄 Analyzing uploaded clothing image...")
-        response = requests.post(
-            api_url,
-            params={"key": api_key},
-            json=payload,
-            timeout=60
-        )
+        response = requests.post(api_url, params={"key": api_key}, json=payload, timeout=60)
 
         if response.status_code != 200:
             print(f"❌ API request failed, status code: {response.status_code}")
             return None
 
         data = response.json()
-        text_content = data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+        text_content = (
+            data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+        )
 
         if text_content:
             print(f"✓ Clothing analysis completed:")
@@ -121,6 +124,7 @@ def understand_clothing_image(image_path, api_key):
     except Exception as e:
         print(f"❌ Error analyzing image: {e}")
         return None
+
 
 def generate_new_texture_with_clothing(clothing_description, api_key):
     """
@@ -155,7 +159,9 @@ def generate_new_texture_with_clothing(clothing_description, api_key):
 
         # 2. Build intelligent prompt to tell Gemini to keep layout unchanged
         model_name = "gemini-2.5-flash-image"
-        api_url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent"
+        api_url = (
+            f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent"
+        )
 
         enhanced_prompt = (
             f"Generate a new version of this Live2D character texture sheet. "
@@ -179,20 +185,15 @@ def generate_new_texture_with_clothing(clothing_description, api_key):
         )
 
         payload = {
-            "contents": [{
-                "parts": [
-                    {"text": enhanced_prompt},
-                    {
-                        "inline_data": {
-                            "mime_type": "image/png",
-                            "data": original_texture_b64
-                        }
-                    }
-                ]
-            }],
-            "generationConfig": {
-                "responseModalities": ["IMAGE"]
-            }
+            "contents": [
+                {
+                    "parts": [
+                        {"text": enhanced_prompt},
+                        {"inline_data": {"mime_type": "image/png", "data": original_texture_b64}},
+                    ]
+                }
+            ],
+            "generationConfig": {"responseModalities": ["IMAGE"]},
         }
 
         # 3. Call API to generate new texture
@@ -200,12 +201,7 @@ def generate_new_texture_with_clothing(clothing_description, api_key):
         print(f"   Target clothing: {clothing_description}")
         print("   (AI will automatically identify clothing area and keep other parts unchanged)")
 
-        response = requests.post(
-            api_url,
-            params={"key": api_key},
-            json=payload,
-            timeout=120
-        )
+        response = requests.post(api_url, params={"key": api_key}, json=payload, timeout=120)
 
         if response.status_code != 200:
             print(f"❌ API request failed, status code: {response.status_code}")
@@ -224,10 +220,7 @@ def generate_new_texture_with_clothing(clothing_description, api_key):
 
         result = candidates[0].get("content", {})
         parts = result.get("parts", [])
-        image_part = next(
-            (part for part in parts if "inlineData" in part or "image" in part),
-            None
-        )
+        image_part = next((part for part in parts if "inlineData" in part or "image" in part), None)
 
         if not image_part:
             print("❌ Missing image content in response")
@@ -261,8 +254,10 @@ def generate_new_texture_with_clothing(clothing_description, api_key):
     except Exception as e:
         print(f"❌ Error generating new texture: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 def main():
     """Main function"""
@@ -313,11 +308,11 @@ def main():
         if not user_input:
             continue
 
-        if user_input.lower() == 'quit':
+        if user_input.lower() == "quit":
             print("👋 Goodbye!")
             break
 
-        if user_input.lower() == 'restore':
+        if user_input.lower() == "restore":
             restore_texture()
             continue
 
@@ -338,7 +333,7 @@ def main():
             print(f"   {clothing_description}")
             confirm = input("\nUse this description to generate clothing? (y/n) > ").strip().lower()
 
-            if confirm != 'y':
+            if confirm != "y":
                 print("❌ Cancelled")
                 continue
 
@@ -365,6 +360,7 @@ def main():
                 print("   💡 If not satisfied, enter 'restore' to revert")
             else:
                 print("\n❌ Clothing change failed")
+
 
 if __name__ == "__main__":
     main()
