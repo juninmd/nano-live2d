@@ -50,7 +50,7 @@ class TestBackupAndRestore:
         result = generate_texture.restore_texture()
 
         assert result is True
-        assert Image.open(texture_png) == Image.open(backup_png)
+        assert texture_png.read_bytes() == backup_png.read_bytes()
 
         generate_texture.TEXTURE_PATH = original_tex
         generate_texture.BACKUP_PATH = original_bak
