@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "open-avatar"
+version = "1.0.0"
+description = "AI-powered 2D digital human avatar with Live2D"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+dependencies = [
+    "requests>=2.31.0",
+    "Pillow>=10.0.0",
+    "google-generativeai>=0.3.0",
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py38", "py39", "py310"]
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.git
+    | __pycache__
+    | dist
+    | node_modules
+    | \.venv
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["generate_texture"]
+omit = ["tests/*", "**/__init__.py"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 80
+
+[tool.mypy]
+python_version = "3.8"
+ignore_missing_imports = true
+warn_unused_configs = true
