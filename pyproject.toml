@@ -52,3 +52,6 @@ fail_under = 80
 python_version = "3.8"
 ignore_missing_imports = true
 warn_unused_configs = true
+
+[tool.setuptools]
+py-modules = ["generate_texture"]
