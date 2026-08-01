@@ -1,0 +1,23 @@
+{
+  "name": "nano-live2d-frontend",
+  "version": "2.0.0",
+  "description": "Browser frontend for the nano-live2d Live2D avatar (TypeScript + ESM)",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src --ext .ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.13.0",
+    "@typescript-eslint/parser": "^8.13.0",
+    "eslint": "^8.57.1",
+    "happy-dom": "^15.11.6",
+    "jsdom": "^25.0.1",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.5"
+  }
+}
